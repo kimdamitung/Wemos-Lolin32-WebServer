@@ -1,6 +1,7 @@
 #include <WiFi.h>
 #include <ESPAsyncWebServer.h>
 #include <SPIFFS.h>
+#include <sqlite3.h>
 
 #define WIFI_IMEROUT_MS 20000
 
@@ -9,9 +10,21 @@ const char* password = "1900636936";
 
 AsyncWebServer server(80);
 
-void handleRoot(AsyncWebServerRequest *request) {
-	File fileHTML = SPIFFS.open("/index.html", "r");
+void handleLogin(AsyncWebServerRequest *request){
+	File fileHTML = SPIFFS.open("/login.html", "r");
 	if (!fileHTML) {
+		Serial.println("Failed to open file");
+		request->send(404, "text/plain", "File not found");
+		return;
+	}
+	String htmlContent = fileHTML.readString();
+	request->send(200, "text/html", htmlContent);
+	fileHTML.close();
+}
+
+void handleSignup(AsyncWebServerRequest *request){
+	File fileHTML = SPIFFS.open("/signup.html", "r");
+	if(!fileHTML){
 		Serial.println("Failed to open file");
 		request->send(404, "text/plain", "File not found");
 		return;
@@ -39,14 +52,37 @@ void connectToWifi(){
 	}
 }
 
+void connectDatabase(const char *filename ,sqlite3 *db){
+	int rc = sqlite3_open(filename, &db);
+	if(rc == SQLITE_OK){
+		Serial.println("Database connection SUCCESS\n");
+		sqlite3_close(db);
+	}else{
+		Serial.println("Failed to open database\n");
+	}
+}
+
 void setup() {
   	Serial.begin(115200);
   	if (!SPIFFS.begin(true)) {
 		Serial.println("An error occurred while mounting SPIFFS");
 		return;
 	}
+
+	/*begin code connect wifi*/
   	connectToWifi();
-  	server.on("/", HTTP_GET, handleRoot);
+  	/*end code connect wifi*/
+
+  	/*begin code server*/
+  	server.on("/", HTTP_GET, handleLogin);
+  	server.on("/signup", HTTP_GET, handleSignup);
+  	/*end code server*/
+
+  	/*begin code connect database*/
+  	sqlite3 *db;
+  	connectDatabase("/database/database.db", db);
+  	/*end code connect database*/
+
   	/*begin code static image*/
   	server.on("/img/background.jpg", HTTP_GET, [](AsyncWebServerRequest *request){
     	request->send(SPIFFS, "/img/background.jpg", "image/jpeg");
@@ -73,11 +109,18 @@ void setup() {
 	    request->send(SPIFFS, "/img/youtube.svg", "image/svg+xml");
 	});
   	/*end code static image*/
+
   	/*begin code static css*/
   	server.on("/css/styles.css", HTTP_GET, [](AsyncWebServerRequest *request){
 	    request->send(SPIFFS, "/css/styles.css", "text/css");
 	});
   	/*end code static css*/
+
+  	/*begin code static js*/
+  	server.on("/js/main.js", HTTP_GET, [](AsyncWebServerRequest *request){
+  		request->send(SPIFFS, "/js/main.js", "application/javascript");
+  	});
+  	/*end code static js*/
   	server.begin();
   	Serial.println("HTTP server started");
 }

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="shortcut icon" type="image/svg+xml" href="img/docker.svg" >
+	<link rel="stylesheet" type="text/css" href="css/styles.css">
+
+	<title>Golang Sign Up</title>
+
+</head>
+<body>
+	<style type="text/css">
+		body{
+			background-image: url("img/background.jpg");
+			background-size: cover;
+			background-repeat: no-repeat;
+			background-attachment: fixed;
+			font-family: sans-serif;
+		}
+	</style>
+
+	<div class="container-signup">
+		<div class="signup-form">
+		    <h2>
+		    	sign up
+		    </h2>
+		    <form action="/signup" method="post">
+		        <label for="name">Name: </label>
+		        <input type="text" id="name" name="name" placeholder="Name">
+		        <label for="mssv">MSSV</label>
+		        <input type="number" id="mssv" name="mssv" placeholder="MSSV">
+		        <label for="username">Username: </label>
+		        <input type="text" id="username" name="username" placeholder="Username">
+		        <label for="password">Password:</label>
+		        <input type="password" id="password" name="password" placeholder="Password">
+		        <label for="confirm-password">Confirm Password:</label>
+		        <input type="password" id="confirm-password" name="confirm-password" placeholder="Confirm Password">
+		        <div id="error-message" style="display: none; color: red;"></div>
+		        <button id="signup-button" type="submit" onclick="lock()">Sign Up</button>
+		    </form>
+		    <p>Already have an account? <a href="/">Log In</a></p>
+		</div>
+	</div>
+
+	<script src="js/main.js"></script>
+
+</body>
+</html>
